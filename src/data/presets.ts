@@ -1,0 +1,145 @@
+import { ApologyPreset, ApologyTone } from '../types';
+
+export const APOLOGY_PRESETS: ApologyPreset[] = [
+  {
+    id: 'heeje-berkeley-letter',
+    name: 'Leaving Home for Berkeley (To Mom)',
+    tagline: 'Warm, humorous love letter & gentle apology for leaving SoCal',
+    recipient: 'Mom (The Heart of Our Home)',
+    relationship: 'Mother',
+    transgression: 'Left home in SoCal to pursue my Master’s in Design at UC Berkeley',
+    tone: 'warm_humorous',
+    dramaLevel: 3,
+    sampleLetter: {
+      title: 'A Dispatch of Love, Mild Apology, & Berkeley Update',
+      salutation: 'Dearest Mom,',
+      content: `I am writing this from up north in Berkeley, safe and sound, though officially guilty of leaving the warmest home in Southern California to go chase pixels, prototypes, and a Master’s in Design.\n\nFirst, my official apology: I know you worried when I packed my bags, and I am deeply sorry for leaving an empty chair at the dinner table. Who is going to finish the extra side dishes now? I can already hear you asking if I'm eating enough vegetables, if the Berkeley breeze is too chilly, and whether my brother is behaving himself at home.\n\nRest assured, Dad and my brother are holding down the fort, Grandma has her favorite drama shows, and please give our dog an extra ear rub from me. Berkeley is challenging and exciting, but every single thing I’m designing here is built on the love, grit, and sacrifices you and Dad made when we started our journey as an immigrant family.\n\nI promise to eat actual meals (not just instant ramen), call you every Sunday, and come home with stories that will make you proud.`,
+      valediction: 'With all my love, gratitude, and a promise to visit soon,',
+      signOff: 'Your son, Heeje Lee',
+      postScript: 'P.S. Please tell our dog that I didn’t abandon him for Northern California squirrels—I will be back with treats before he even realizes I’m gone!',
+      absurdityQuote: 'Officially guilty of leaving SoCal for graduate school, but always your son.',
+    },
+  },
+  {
+    id: 'leftovers-heist',
+    name: 'The Leftover Thai Curry Incident',
+    tagline: 'When hunger overpowered basic household ethics',
+    recipient: 'Clara, Beloved Roommate',
+    relationship: 'Roommate',
+    transgression: 'Ate the clearly labeled green curry leftovers in the fridge at 2:14 AM',
+    tone: 'victorian',
+    dramaLevel: 4,
+    sampleLetter: {
+      title: 'A Confession of Midnight Depravity & Culinary Treason',
+      salutation: 'To My Most Munificent and Severely Defrauded Flatmate, Clara,',
+      content: `It is with trembling quill and a heart weighed down by incandescent mortification that I compose this dispatch from the draughty corridors of our shared domicile. At precisely fourteen minutes past the second hour of the morning, driven by a bestial delirium brought on by low blood sugar and moral fragility, I crept toward the chilling glow of the Frigidaire.\n\nThere, nestled behind the unsalted butter, stood your vessel of coconut chicken curry. Though your penmanship was stark—"CLARA'S LUNCH: DO NOT TOUCH UNDER PENALTY OF EXILE"—my wretched senses hallucinated that the Tupperware was whispering my name in ancient Aramaic. I consumed it in unholy haste, standing barefoot on the cold linoleum, armed only with a soup spoon and the hollow phantom of my former honor.\n\nI offer neither defense nor cowardly justification. The spicy aromas that satisfied my mortal palate now burn as sulfur in the kiln of my guilty conscience. I am prepared to sleep in the garden shed until the equinox if you so command, though I pray the accompanying restitution may stay your righteous vengeance.`,
+      valediction: 'Yours in unwashed sackcloth and lifelong contrition,',
+      signOff: 'Julian, Former Steward of Domestic Trust',
+      postScript: 'P.S. An authentic triple-portion delivery from Bangkok Bistro has been dispatched to your office for 12:30 PM, accompanied by two mango sticky rices to soften the blow.',
+      absurdityQuote: 'The Tupperware was whispering my name in ancient Aramaic.',
+    },
+  },
+  {
+    id: 'reply-all-apocalypse',
+    name: 'The Reply-All Catastrophe',
+    tagline: 'A confidential hot take unleashed to 418 people',
+    recipient: 'The Entire Regional Enterprise Division',
+    relationship: 'Colleagues & Executive Leadership',
+    transgression: 'Accidentally hit Reply-All to a mandatory budget meeting with "lmao another meeting that could have been an interpretive dance"',
+    tone: 'corporate_pr',
+    dramaLevel: 3,
+    sampleLetter: {
+      title: 'Formal Statement Regarding Sub-Optimal Communication Synergy',
+      salutation: 'Dear Valued Cross-Functional Stakeholders and Honored Leadership Team,',
+      content: `I am writing to proactively address the unintended distribution of non-mission-critical commentary during this morning’s 8:45 AM Q4 Operational Efficiency Alignment invitation.\n\nWhile my keystrokes suggested that our quarterly fiscal synchronization could be rendered through the medium of avant-garde interpretive movement, internal audit confirms that our slides are, in fact, irreplaceable deliverables of paramount corporate gravity. The remark was generated due to a fleeting latency in my biological decision-making matrix and does not reflect our enterprise-grade commitment to high-touch calendar density.\n\nAs part of my corrective remediation pipeline, I have enrolled myself in a voluntary three-hour webinar on mouse-cursor spatial awareness. Furthermore, I have instituted a personal thirty-second moratorium between all incoming calendar invites and spontaneous keyboard outputs to avoid future synergy discrepancies.`,
+      valediction: 'Committed to seamless cross-team harmony and accountability,',
+      signOff: 'Marcus Vance, Lead Specialist of Unsolicited Feedback',
+      postScript: 'P.S. To demonstrate good faith, artisan cold-brew growlers and cinnamon crullers have been stationed in the 3rd floor kitchenette. Please accept them as tangible collateral for my thumb’s insolence.',
+      absurdityQuote: 'Internal audit confirms our slides cannot, in fact, be replaced by interpretive dance.',
+    },
+  },
+  {
+    id: 'ikea-ghosting',
+    name: 'The 4th-Floor Walkup Sofa Desertion',
+    tagline: 'Mysteriously vanished when the solid oak armoire arrived',
+    recipient: 'Dave, Best Friend of 12 Years',
+    relationship: 'Best Friend',
+    transgression: 'Promised to help move furniture up 4 flights of stairs, then texted "car battery died" from a brewery 2 miles away',
+    tone: 'earnest_buffoon',
+    dramaLevel: 4,
+    sampleLetter: {
+      title: 'A Solemn Confession from the World’s Worst Moving Ally',
+      salutation: 'Dear Dave (and Your Currently Sprained Lumbar Spine),',
+      content: `There is no easy way to say this: I am a cowardly goblin who abandoned you in your hour of greatest gravitational distress. When you sent the photo of that monolithic solid-oak modular sofa jammed diagonally in the stairwell between floors 2 and 3, my soul turned to jelly.\n\nMy excuse about my alternator spontaneously combusting was a disgraceful fabrication concocted while nursing an IPA and sweating from secondhand dread. You have stood by me through breakups, dental surgeries, and my ill-fated phase of playing the ukulele in public. For me to repay that fidelity with flight is a stain upon my lineage.\n\nI have spent the past eighteen hours staring into the bathroom mirror repeating "You left Dave under a sofa" until my dog started whimpering from emotional discomfort.`,
+      valediction: 'Your disgraced, sedentary, and deeply ashamed brother-in-arms,',
+      signOff: 'Sammy, The Stairwell Deserter',
+      postScript: 'P.S. I am paying for your massage therapist this Thursday, bringing two large pepperoni pizzas tonight, and I have officially signed a binding napkin contract to move your heaviest future belongings without hesitation.',
+      absurdityQuote: 'My soul turned to jelly when I saw the sofa jammed diagonally in the stairwell.',
+    },
+  },
+];
+
+export const QUICK_FAUX_PAS = [
+  'Left home in SoCal to pursue graduate school at UC Berkeley',
+  'Ate the clearly labeled leftovers in the fridge at 2 AM',
+  'Forgot our wedding anniversary / partner’s birthday',
+  'Accidentally sent the screenshot to the person it was about',
+  'Stayed at your dinner party 2 hours after you started vacuuming',
+  'Borrowed car and returned it with the gas light blinking red',
+  'Spoiled the season finale of a show you spent 3 weeks bingeing',
+  'Lost your favorite Tupperware container into the void',
+];
+
+export const TONE_DETAILS: Record<
+  ApologyTone,
+  { label: string; badge: string; desc: string; icon: string }
+> = {
+  warm_humorous: {
+    label: 'Warm & Cheerful (Ghostwriter)',
+    badge: 'Affectionate & Playful',
+    desc: 'Lighthearted, loving, and cheerful. Balancing genuine affection with playful, gentle humor.',
+    icon: 'Heart',
+  },
+  victorian: {
+    label: 'Victorian Melodrama',
+    badge: '19th Century Gothic',
+    desc: 'Swooning remorse, smelling salts, fainting couches, and florid high-drama agony.',
+    icon: 'Feather',
+  },
+  corporate_pr: {
+    label: 'Corporate PR Crisis',
+    badge: 'Sub-Optimal Optics',
+    desc: 'Deep synergy jargon, proactive root-cause analysis, and bureaucratic non-apologies.',
+    icon: 'Briefcase',
+  },
+  passive_aggressive: {
+    label: 'Passive-Aggressive Diplomat',
+    badge: 'Veiled Penance',
+    desc: 'Politely contrite on the surface while delicately pointing out shared liability.',
+    icon: 'Smile',
+  },
+  legal_brief: {
+    label: 'Extravagant Legal Brief',
+    badge: 'Court Affidavit',
+    desc: 'Admitting guilt without prejudice, citing Force Majeure, exhibits, and torts.',
+    icon: 'Scale',
+  },
+  drama_queen: {
+    label: 'Theatrical Drama Queen',
+    badge: 'Soap Opera Scale',
+    desc: 'Comparing a minor slip-up to the fall of Atlantis; banishing oneself to the tundra.',
+    icon: 'Flame',
+  },
+  earnest_buffoon: {
+    label: 'Earnest Goofball',
+    badge: 'Lovable Clumsiness',
+    desc: 'Sheepish, deeply relatable self-deprecating humor with heartwarming sincerity.',
+    icon: 'HeartHandshake',
+  },
+  existential: {
+    label: 'Existential Despair',
+    badge: 'Cosmic Entropy',
+    desc: 'Blaming the heat death of the universe, quantum mechanics, and the human condition.',
+    icon: 'Sparkles',
+  },
+};
