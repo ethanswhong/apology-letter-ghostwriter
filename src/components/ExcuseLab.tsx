@@ -1,3 +1,4 @@
+import { readApiResponse } from '../utils/api';
 import React, { useState } from 'react';
 import { Sparkles, Loader2, ArrowRight, RefreshCw, Check } from 'lucide-react';
 import { ApologyTone, ExcuseItem } from '../types';
@@ -19,6 +20,7 @@ export const ExcuseLab: React.FC<ExcuseLabProps> = ({
   );
   const [tone, setTone] = useState<ApologyTone>(currentTone);
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [excuses, setExcuses] = useState<ExcuseItem[]>([
     {
@@ -46,18 +48,20 @@ export const ExcuseLab: React.FC<ExcuseLabProps> = ({
   const handleGenerate = async () => {
     if (!transgression.trim()) return;
     setLoading(true);
+    setApiError(null);
     try {
       const res = await fetch('/api/apology/excuse-generator', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ transgression, tone }),
       });
-      const data = await res.json();
+      const data = await readApiResponse<{ success: boolean; excuses?: ExcuseItem[] }>(res);
       if (data.success && data.excuses?.length > 0) {
         setExcuses(data.excuses);
       }
     } catch (err) {
       console.error(err);
+      setApiError(err instanceof Error ? err.message : 'Unable to generate excuses.');
     } finally {
       setLoading(false);
     }
@@ -149,6 +153,11 @@ export const ExcuseLab: React.FC<ExcuseLabProps> = ({
               </button>
             </div>
           </div>
+          {apiError && (
+            <p role="alert" className="text-sm text-rose-800 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 rounded-lg p-3">
+              {apiError}
+            </p>
+          )}
         </div>
       </div>
 

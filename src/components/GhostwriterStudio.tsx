@@ -14,6 +14,7 @@ import {
   Compass,
 } from 'lucide-react';
 import { ApologyLetter, GhostwriterConsultResponse } from '../types';
+import { readApiResponse } from '../utils/api';
 
 interface GhostwriterStudioProps {
   currentLetter: ApologyLetter;
@@ -50,6 +51,7 @@ export const GhostwriterStudio: React.FC<GhostwriterStudioProps> = ({
 
   // Ghostwriter State
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [commentary, setCommentary] = useState<string>(
     'Welcome, Heeje! As your Humorous Apology Ghostwriter, my mission is to capture your genuine love for Mom while keeping things cheerful, warm, and lighthearted. We are striking the sweet spot between a heartfelt confession and a joyful family update.'
   );
@@ -77,6 +79,7 @@ export const GhostwriterStudio: React.FC<GhostwriterStudioProps> = ({
 
   const handleConsult = async (customFeedback = '') => {
     setLoading(true);
+    setApiError(null);
     try {
       // Aggregate user answers into the story
       const formattedAnswers = Object.entries(answers)
@@ -103,7 +106,7 @@ export const GhostwriterStudio: React.FC<GhostwriterStudioProps> = ({
         }),
       });
 
-      const data: GhostwriterConsultResponse = await res.json();
+      const data = await readApiResponse<GhostwriterConsultResponse>(res);
       if (data.success && data.letterDraft) {
         onUpdateLetter({
           ...data.letterDraft,
@@ -120,9 +123,12 @@ export const GhostwriterStudio: React.FC<GhostwriterStudioProps> = ({
           setPreservedExpressions(data.preservedExpressions);
         }
         setFeedbackInput('');
+      } else {
+        throw new Error('The ghostwriter returned an incomplete response.');
       }
     } catch (err) {
       console.error(err);
+      setApiError(err instanceof Error ? err.message : 'An unexpected API error occurred.');
     } finally {
       setLoading(false);
     }
@@ -298,6 +304,11 @@ export const GhostwriterStudio: React.FC<GhostwriterStudioProps> = ({
             </>
           )}
         </button>
+        {apiError && (
+          <p role="alert" className="text-sm text-rose-800 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 rounded-lg p-3">
+            {apiError}
+          </p>
+        )}
       </div>
 
       {/* Step 2 & 3: Clarifying Questions & Assistant Commentary */}

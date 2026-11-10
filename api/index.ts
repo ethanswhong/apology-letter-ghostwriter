@@ -1,5 +1,4 @@
 import app from '../app';
 
-export default function handler(req: any, res: any) {
-  return app(req, res);
-}
+// Vercel Node.js Function entry point for the /api/* rewrite.
+export default app;

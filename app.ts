@@ -7,45 +7,76 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-// Primary lightweight model to avoid high-demand spikes
-const PRIMARY_MODEL = 'gemini-3.1-flash-lite';
-const FALLBACK_MODEL = 'gemini-flash-latest';
+// Use stable model identifiers; allow model overrides without another deployment.
+const PRIMARY_MODEL = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || 'gemini-3.5-flash-lite';
 
-// Lazy-initialized AI client to prevent crash during cold start if env var is missing
-function getAiClient(): GoogleGenAI {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey || apiKey.trim() === '' || apiKey === 'MY_GEMINI_API_KEY') {
-    throw new Error(
-      'GEMINI_API_KEY is not configured or invalid. Please configure GEMINI_API_KEY in your Vercel Project Settings > Environment Variables and redeploy.'
-    );
+class MissingApiKeyError extends Error {
+  constructor() {
+    super('GEMINI_API_KEY is missing. Add it in Vercel Project Settings > Environment Variables, then redeploy.');
+    this.name = 'MissingApiKeyError';
   }
-  return new GoogleGenAI({
-    apiKey,
-    httpOptions: {
-      headers: {
-        'User-Agent': 'aistudio-build',
-      },
-    },
-  });
 }
 
-// Robust helper to generate content with fallback
-async function generateWithFallback(params: any) {
+function hasGeminiKey(): boolean {
+  const key = process.env.GEMINI_API_KEY?.trim();
+  return Boolean(key && key !== 'MY_GEMINI_API_KEY');
+}
+
+function getAiClient(): GoogleGenAI {
+  if (!hasGeminiKey()) throw new MissingApiKeyError();
+  return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+}
+
+function upstreamStatus(error: unknown): number | undefined {
+  if (!error || typeof error !== 'object') return undefined;
+  const status = (error as { status?: unknown }).status;
+  if (typeof status === 'number') return status;
+  if (typeof status === 'string' && /^\d{3}$/.test(status)) return Number(status);
+  return undefined;
+}
+
+// Trying another model is useful when a model is unavailable or temporarily overloaded,
+// but not for an invalid API key or permission failure.
+function shouldTryFallback(error: unknown): boolean {
+  return [404, 429, 500, 502, 503, 504].includes(upstreamStatus(error) ?? 0);
+}
+
+async function generateWithFallback(params: Parameters<GoogleGenAI['models']['generateContent']>[0]) {
   const ai = getAiClient();
   try {
-    return await ai.models.generateContent({
-      ...params,
-      model: PRIMARY_MODEL,
-    });
-  } catch (error: any) {
-    console.warn(
-      `Primary model (${PRIMARY_MODEL}) failed: ${error?.message}. Attempting fallback to ${FALLBACK_MODEL}...`
-    );
-    return await ai.models.generateContent({
-      ...params,
-      model: FALLBACK_MODEL,
-    });
+    return await ai.models.generateContent({ ...params, model: PRIMARY_MODEL });
+  } catch (error: unknown) {
+    if (!shouldTryFallback(error) || PRIMARY_MODEL === FALLBACK_MODEL) throw error;
+    console.warn(`Gemini primary model ${PRIMARY_MODEL} failed (status ${upstreamStatus(error) ?? 'unknown'}); trying ${FALLBACK_MODEL}.`);
+    return await ai.models.generateContent({ ...params, model: FALLBACK_MODEL });
   }
+}
+
+// Preserve the real upstream status in server logs, but don't leak API credentials or
+// provider internals into the publicly accessible browser response.
+function sendAiError(res: Response, error: unknown, action: string) {
+  console.error(`${action} failed:`, error);
+  if (error instanceof MissingApiKeyError) {
+    return res.status(503).json({ success: false, code: 'GEMINI_KEY_MISSING', error: error.message });
+  }
+  const status = upstreamStatus(error);
+  if (status === 401 || status === 403) {
+    return res.status(502).json({ success: false, code: 'GEMINI_AUTH_FAILED', error: 'Gemini rejected the API key or its permissions. Check GEMINI_API_KEY in Vercel.' });
+  }
+  if (status === 429) {
+    return res.status(429).json({ success: false, code: 'GEMINI_RATE_LIMIT', error: 'Gemini API rate limit or quota reached. Please try again later and check your Google API quota.' });
+  }
+  if (status === 404) {
+    return res.status(502).json({ success: false, code: 'GEMINI_MODEL_UNAVAILABLE', error: 'The configured Gemini model is not available for this API key. Check the GEMINI_MODEL setting.' });
+  }
+  if (status === 400) {
+    return res.status(502).json({ success: false, code: 'GEMINI_BAD_REQUEST', error: 'Gemini rejected the generation request. Check Vercel function logs for the provider error.' });
+  }
+  if (status === undefined) {
+    return res.status(500).json({ success: false, code: 'UNEXPECTED_SERVER_ERROR', error: 'An unexpected server error occurred. Check Vercel Function logs.' });
+  }
+  return res.status(502).json({ success: false, code: 'GEMINI_REQUEST_FAILED', error: 'Gemini could not generate the response. Check Vercel Function logs and try again.' });
 }
 
 // Master Ghostwriter System Persona and Knowledge Base
@@ -114,12 +145,13 @@ const apiRouter = express.Router();
 
 // Health Check
 apiRouter.get('/health', (_req: Request, res: Response) => {
-  const hasKey = !!process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'MY_GEMINI_API_KEY';
+  const hasKey = hasGeminiKey();
   res.json({
-    status: 'ok',
+    status: hasKey ? 'ok' : 'missing-api-key',
     environment: process.env.VERCEL ? 'vercel-serverless' : 'node-express',
     hasGeminiKey: hasKey,
     model: PRIMARY_MODEL,
+    fallbackModel: FALLBACK_MODEL,
   });
 });
 
@@ -210,11 +242,7 @@ Please analyze this according to the interaction loop:
     const parsed = JSON.parse(response.text || '{}');
     return res.json({ success: true, ...parsed });
   } catch (error: any) {
-    console.error('Error in ghostwriter consultation:', error);
-    return res.status(500).json({
-      success: false,
-      error: error?.message || 'Failed to consult ghostwriter.',
-    });
+    return sendAiError(res, error, 'Ghostwriter consultation');
   }
 });
 
@@ -261,11 +289,7 @@ P.S.: ${currentLetter.postScript}`;
     const parsed = JSON.parse(response.text || '{}');
     return res.json({ success: true, letter: parsed });
   } catch (error: any) {
-    console.error('Error refining letter:', error);
-    return res.status(500).json({
-      success: false,
-      error: error?.message || 'Failed to refine the letter.',
-    });
+    return sendAiError(res, error, 'Letter refinement');
   }
 });
 
@@ -314,11 +338,7 @@ Tone: Cheerful, lighthearted, warm, and loving. Sincere love mixed with witty, g
     const parsed = JSON.parse(response.text || '{}');
     return res.json({ success: true, letter: parsed });
   } catch (error: any) {
-    console.error('Error generating letter:', error);
-    return res.status(500).json({
-      success: false,
-      error: error?.message || 'Failed to draft letter.',
-    });
+    return sendAiError(res, error, 'Letter generation');
   }
 });
 
@@ -349,11 +369,7 @@ apiRouter.post('/apology/excuse-generator', async (req: Request, res: Response) 
     const excuses = JSON.parse(response.text || '[]');
     return res.json({ success: true, excuses });
   } catch (error: any) {
-    console.error('Error generating excuses:', error);
-    return res.status(500).json({
-      success: false,
-      error: error?.message || 'Failed to generate excuses.',
-    });
+    return sendAiError(res, error, 'Excuse generation');
   }
 });
 
@@ -384,11 +400,7 @@ apiRouter.post('/apology/peace-offerings', async (req: Request, res: Response) =
     const offerings = JSON.parse(response.text || '[]');
     return res.json({ success: true, offerings });
   } catch (error: any) {
-    console.error('Error generating peace offerings:', error);
-    return res.status(500).json({
-      success: false,
-      error: error?.message || 'Failed to suggest peace offerings.',
-    });
+    return sendAiError(res, error, 'Peace offerings');
   }
 });
 

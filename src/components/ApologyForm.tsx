@@ -1,3 +1,4 @@
+import { readApiResponse } from '../utils/api';
 import React, { useState } from 'react';
 import {
   Feather,
@@ -66,6 +67,7 @@ export const ApologyForm: React.FC<ApologyFormProps> = ({
   const [customExcuse, setCustomExcuse] = useState(externalExcuse);
   const [reparation, setReparation] = useState('');
   const [generatingOfferings, setGeneratingOfferings] = useState(false);
+  const [offeringsError, setOfferingsError] = useState<string | null>(null);
   const [offeringSuggestions, setOfferingSuggestions] = useState<PeaceOfferingItem[]>([]);
 
   // Update excuse if external lab passed one
@@ -98,18 +100,20 @@ export const ApologyForm: React.FC<ApologyFormProps> = ({
   const handleGenerateOfferings = async () => {
     if (!transgression.trim()) return;
     setGeneratingOfferings(true);
+    setOfferingsError(null);
     try {
       const res = await fetch('/api/apology/peace-offerings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ transgression, relationship }),
       });
-      const data = await res.json();
+      const data = await readApiResponse<{ success: boolean; offerings?: PeaceOfferingItem[] }>(res);
       if (data.success && data.offerings) {
         setOfferingSuggestions(data.offerings);
       }
     } catch (err) {
       console.error(err);
+      setOfferingsError(err instanceof Error ? err.message : 'Unable to suggest peace offerings.');
     } finally {
       setGeneratingOfferings(false);
     }
@@ -339,6 +343,12 @@ export const ApologyForm: React.FC<ApologyFormProps> = ({
             placeholder="e.g. A freshly baked sourdough loaf, lifetime immunity from taking trash out..."
             className="w-full px-3.5 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:outline-hidden focus:ring-2 focus:ring-amber-800/40"
           />
+
+          {offeringsError && (
+            <p role="alert" className="mt-2 text-sm text-rose-800 dark:text-rose-300">
+              {offeringsError}
+            </p>
+          )}
 
           {/* Peace Offering Suggestions */}
           {offeringSuggestions.length > 0 && (

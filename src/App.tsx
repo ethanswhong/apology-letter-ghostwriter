@@ -8,6 +8,7 @@ import { ExcuseLab } from './components/ExcuseLab';
 import { DossierView } from './components/DossierView';
 import { APOLOGY_PRESETS } from './data/presets';
 import { ApologyLetter, ApologyPreset, ApologyTone } from './types';
+import { readApiResponse } from './utils/api';
 import { AlertCircle, Heart, Sparkles, MessageSquareHeart } from 'lucide-react';
 
 const STORAGE_KEY = 'mea_culpa_dossier_v1';
@@ -73,7 +74,7 @@ export default function App() {
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
+      const data = await readApiResponse<{ success: boolean; letter?: ApologyLetter; error?: string }>(res);
       if (data.success && data.letter) {
         const generated: ApologyLetter = {
           ...data.letter,
@@ -111,7 +112,7 @@ export default function App() {
         }),
       });
 
-      const data = await res.json();
+      const data = await readApiResponse<{ success: boolean; letter?: ApologyLetter; error?: string }>(res);
       if (data.success && data.letter) {
         setCurrentLetter({
           ...currentLetter,
@@ -122,7 +123,7 @@ export default function App() {
       }
     } catch (err: any) {
       console.error(err);
-      setErrorMessage('Could not refine the apology. Please try again.');
+      setErrorMessage(err instanceof Error ? err.message : 'Could not refine the apology. Please try again.');
     } finally {
       setIsRefining(false);
     }
