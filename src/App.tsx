@@ -11,11 +11,24 @@ import { ApologyLetter, ApologyPreset, ApologyTone } from './types';
 import { readApiResponse } from './utils/api';
 import { AlertCircle, Heart, Sparkles, MessageSquareHeart } from 'lucide-react';
 
+const emptyLetter = (): ApologyLetter => ({
+  id: `new-${Date.now()}`,
+  title: '',
+  salutation: '',
+  content: '',
+  valediction: '',
+  signOff: '',
+  postScript: '',
+});
+
 const STORAGE_KEY = 'mea_culpa_dossier_v1';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'ghostwriter' | 'compose' | 'presets' | 'excuses' | 'dossier'>('ghostwriter');
-  const [currentLetter, setCurrentLetter] = useState<ApologyLetter>(APOLOGY_PRESETS[0].sampleLetter);
+  const [activeTab, setActiveTab] = useState<
+    'ghostwriter' | 'compose' | 'presets' | 'excuses' | 'dossier'
+  >('ghostwriter');
+  const [currentLetter, setCurrentLetter] =
+    useState<ApologyLetter>(emptyLetter);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -29,15 +42,7 @@ export default function App() {
       if (stored) {
         setSavedLetters(JSON.parse(stored));
       } else {
-        // Seed with primary Heeje Lee letter to Mom
-        setSavedLetters([
-          {
-            ...APOLOGY_PRESETS[0].sampleLetter,
-            id: 'sample-heeje-letter',
-            timestamp: Date.now() - 86400000,
-            recipient: 'Mom (The Undisputed Heart of Our Home)',
-          },
-        ]);
+        setSavedLetters([]);
       }
     } catch (e) {
       console.error('Failed to load dossier from storage:', e);
@@ -74,7 +79,11 @@ export default function App() {
         body: JSON.stringify(formData),
       });
 
-      const data = await readApiResponse<{ success: boolean; letter?: ApologyLetter; error?: string }>(res);
+      const data = await readApiResponse<{
+        success: boolean;
+        letter?: ApologyLetter;
+        error?: string;
+      }>(res);
       if (data.success && data.letter) {
         const generated: ApologyLetter = {
           ...data.letter,
@@ -92,7 +101,10 @@ export default function App() {
       }
     } catch (err: any) {
       console.error(err);
-      setErrorMessage(err.message || 'An unexpected error occurred while communicating with the ghostwriter.');
+      setErrorMessage(
+        err.message ||
+          'An unexpected error occurred while communicating with the ghostwriter.',
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -112,7 +124,11 @@ export default function App() {
         }),
       });
 
-      const data = await readApiResponse<{ success: boolean; letter?: ApologyLetter; error?: string }>(res);
+      const data = await readApiResponse<{
+        success: boolean;
+        letter?: ApologyLetter;
+        error?: string;
+      }>(res);
       if (data.success && data.letter) {
         setCurrentLetter({
           ...currentLetter,
@@ -123,7 +139,11 @@ export default function App() {
       }
     } catch (err: any) {
       console.error(err);
-      setErrorMessage(err instanceof Error ? err.message : 'Could not refine the apology. Please try again.');
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : 'Could not refine the apology. Please try again.',
+      );
     } finally {
       setIsRefining(false);
     }
@@ -132,13 +152,16 @@ export default function App() {
   const handleSaveToDossier = (letterToSave: ApologyLetter) => {
     const id = letterToSave.id || `letter-${Date.now()}`;
     const exists = savedLetters.some((l) => l.id === id);
-    if (!exists) {
-      const updated = [
-        { ...letterToSave, id, timestamp: letterToSave.timestamp || Date.now() },
-        ...savedLetters,
-      ];
-      persistDossier(updated);
-    }
+    const updated = {
+      ...letterToSave,
+      id,
+      timestamp: letterToSave.timestamp || Date.now(),
+    };
+    persistDossier(
+      exists
+        ? savedLetters.map((l) => (l.id === id ? updated : l))
+        : [updated, ...savedLetters],
+    );
   };
 
   const handleDeleteLetter = (id: string) => {
@@ -147,7 +170,11 @@ export default function App() {
   };
 
   const handleClearAllDossier = () => {
-    if (confirm('Are you certain you wish to purge all recorded apologies from your dossier?')) {
+    if (
+      confirm(
+        'Are you certain you wish to purge all recorded apologies from your dossier?',
+      )
+    ) {
       persistDossier([]);
     }
   };
@@ -162,22 +189,14 @@ export default function App() {
       tone: preset.tone,
       dramaLevel: preset.dramaLevel,
     });
-    setActiveTab(preset.id === 'heeje-berkeley-letter' ? 'ghostwriter' : 'compose');
+    setActiveTab('ghostwriter');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleNewEpistle = () => {
-    setCurrentLetter({
-      id: `new-${Date.now()}`,
-      timestamp: Date.now(),
-      title: 'A Warm Message from Berkeley',
-      salutation: 'Dearest Mom,',
-      content: `I am writing this from up north in Berkeley, safe and sound, though officially guilty of leaving the warmest home in Southern California to chase pixels, prototypes, and a Master’s in Design.\n\nFirst, my official apology: I know you worried when I packed my bags, and I am deeply sorry for leaving an empty chair at the dinner table. Who is going to finish the extra side dishes now? I can already hear you asking if I'm eating enough vegetables and whether my brother is behaving himself at home.\n\nRest assured, Dad and my brother are holding down the fort, Grandma has her favorite drama shows, and please give our dog an extra ear rub from me. Everything I’m designing here is built on the love and sacrifices you and Dad made for us.\n\nI promise to eat actual meals (not just instant ramen), call you every Sunday, and come home with stories that will make you proud.`,
-      valediction: 'With all my love and endless gratitude,',
-      signOff: 'Your son, Heeje Lee',
-      postScript: 'P.S. Please tell our dog that I didn’t abandon him for Northern California squirrels—I will be back with treats before he even knows it!',
-      absurdityQuote: 'Officially guilty of leaving SoCal for graduate school, but always your son.',
-    });
+    setCurrentLetter(emptyLetter());
+    setErrorMessage(null);
+    setSelectedLabExcuse('');
     setActiveTab('ghostwriter');
   };
 
@@ -194,7 +213,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Error notification banner if any */}
         {errorMessage && (
           <div className="mb-6 p-4 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900/60 rounded-xl text-rose-900 dark:text-rose-200 text-sm flex items-center justify-between">
@@ -215,40 +234,36 @@ export default function App() {
         {activeTab === 'ghostwriter' && (
           <div>
             {/* Studio Hero Introduction */}
-            <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
+            <div className="text-center max-w-3xl mx-auto mb-5 sm:mb-8">
               <div className="text-xs tracking-widest uppercase font-mono text-stone-500 mb-2 flex items-center justify-center gap-2">
                 <Heart className="w-3.5 h-3.5 text-rose-500 inline" />
-                <span>Humorous Apology Ghostwriter Bureau</span>
+                <span>Your words, thoughtfully written</span>
               </div>
-              <h1 className="text-4xl sm:text-5xl font-serif-cormorant font-bold text-stone-900 dark:text-stone-100 tracking-tight">
-                Setting the Tone: Warm, Loving & Playful
+              <h1 className="text-3xl sm:text-5xl font-serif-cormorant font-bold text-stone-900 dark:text-stone-100 tracking-tight">
+                Find the words for your situation
               </h1>
               <p className="mt-3 text-base sm:text-lg font-serif-cormorant italic text-stone-600 dark:text-stone-300 max-w-2xl mx-auto">
-                "Helping you clearly articulate your thoughts and add lighthearted humor, striking the perfect emotional temperature for Mom."
+                Write an apology, a thank-you, a family update, or a
+                professional note in your own voice.
               </p>
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-stone-500">
-                <span>Client: Heeje Lee</span>
-                <span>·</span>
-                <span>SoCal → UC Berkeley MDes</span>
-                <span>·</span>
-                <span>6-Step Interaction Loop</span>
-              </div>
             </div>
 
             {/* Split Column Workspace: Ghostwriter Studio + Live Parchment */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               {/* Left Column: Ghostwriter Consultation Loop */}
-              <div className="lg:col-span-5 order-2 lg:order-1">
+              <div className="lg:col-span-5 order-1 min-w-0">
                 <GhostwriterStudio
+                  key={currentLetter.id}
                   currentLetter={currentLetter}
                   onUpdateLetter={(updated) => setCurrentLetter(updated)}
                 />
               </div>
 
               {/* Right Column: Real-time Parchment Viewer & Tuner */}
-              <div className="lg:col-span-7 order-1 lg:order-2">
+              <div className="lg:col-span-7 order-2 min-w-0">
                 <div className="sticky top-24">
                   <LetterParchment
+                    key={currentLetter.id}
                     letter={currentLetter}
                     onUpdateLetter={(updated) => setCurrentLetter(updated)}
                     onRefine={handleRefine}
@@ -273,12 +288,12 @@ export default function App() {
                 Classic Apology Form
               </h2>
               <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">
-                Configure custom parameters, relationships, and drama dials across 7 distinct tones.
+                Choose a recipient, describe what happened, and select a style.
               </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              <div className="lg:col-span-5 order-2 lg:order-1">
+              <div className="lg:col-span-5 order-1 min-w-0">
                 <ApologyForm
                   onSubmit={handleGenerate}
                   isLoading={isGenerating}
@@ -287,9 +302,10 @@ export default function App() {
                 />
               </div>
 
-              <div className="lg:col-span-7 order-1 lg:order-2">
+              <div className="lg:col-span-7 order-2 min-w-0">
                 <div className="sticky top-24">
                   <LetterParchment
+                    key={currentLetter.id}
                     letter={currentLetter}
                     onUpdateLetter={(updated) => setCurrentLetter(updated)}
                     onRefine={handleRefine}
@@ -304,7 +320,9 @@ export default function App() {
         )}
 
         {/* Tab 3: Presets Hall of Infamy */}
-        {activeTab === 'presets' && <PresetsGallery onLoadPreset={handleLoadPreset} />}
+        {activeTab === 'presets' && (
+          <PresetsGallery onLoadPreset={handleLoadPreset} />
+        )}
 
         {/* Tab 4: Absurd Excuse Lab */}
         {activeTab === 'excuses' && (
@@ -340,9 +358,11 @@ export default function App() {
               Humorous Apology Ghostwriter
             </span>
             <span>·</span>
-            <span>Dedicated to Heeje Lee & Family</span>
+            <span>Letters for everyday life</span>
           </div>
-          <div>Warmth, love, and cheerful humor crafted in authentic voice.</div>
+          <div>
+            Warmth, love, and cheerful humor crafted in authentic voice.
+          </div>
         </div>
       </footer>
     </div>

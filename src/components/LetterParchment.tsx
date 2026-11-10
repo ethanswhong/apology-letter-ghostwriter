@@ -109,19 +109,40 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
   };
 
   const refineSuggestions = [
-    'Turn drama up +30% (more theatrical)',
-    'Sound like an apologetic corporate PR memo',
-    'Add an absurd excuse about quantum physics',
-    'Make it 19th-century gothic Victorian',
-    'Condense into a punchy short apology text',
-    'Add an extravagant peace offering / bribe',
+    'Make it shorter',
+    'Make it warmer',
+    'Make it more professional',
   ];
+  if (!letter.content.trim())
+    return (
+      <section
+        id="letter-preview"
+        className="scroll-mt-24 border border-dashed border-stone-300 rounded-2xl p-8 text-center bg-white dark:bg-stone-900"
+      >
+        <h2 className="font-serif-cormorant text-2xl font-bold">
+          Your letter will appear here
+        </h2>
+        <p className="mt-3 text-stone-600">
+          Tell your story, then choose Draft letter. You can edit, refine, and
+          save it once it’s ready.
+        </p>
+      </section>
+    );
 
   return (
-    <div className="w-full">
+    <div id="letter-preview" className="w-full min-w-0 scroll-mt-24">
+      <div className="mb-3">
+        <h2 className="text-2xl font-serif-cormorant font-bold">
+          Current draft
+        </h2>
+        <p className="text-sm text-stone-600">
+          Changes to your details apply when you draft again. Use Refine letter
+          below for edits to this draft.
+        </p>
+      </div>
       {/* Top Utility Ribbon */}
       <div className="no-print bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-3 mb-4 flex flex-wrap items-center justify-between gap-3 shadow-xs">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setIsEnvelopeView(!isEnvelopeView)}
@@ -131,8 +152,12 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
                 : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
             }`}
           >
-            {isEnvelopeView ? <FileText className="w-3.5 h-3.5" /> : <Mail className="w-3.5 h-3.5" />}
-            <span>{isEnvelopeView ? 'Read Parchment' : 'View Envelope'}</span>
+            {isEnvelopeView ? (
+              <FileText className="w-3.5 h-3.5" />
+            ) : (
+              <Mail className="w-3.5 h-3.5" />
+            )}
+            <span>{isEnvelopeView ? 'Read letter' : 'View Envelope'}</span>
           </button>
 
           <button
@@ -150,25 +175,33 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
                 : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
             }`}
           >
-            {isEditing ? <Check className="w-3.5 h-3.5" /> : <Edit3 className="w-3.5 h-3.5" />}
-            <span>{isEditing ? 'Save Changes' : 'Edit Text In-Place'}</span>
+            {isEditing ? (
+              <Check className="w-3.5 h-3.5" />
+            ) : (
+              <Edit3 className="w-3.5 h-3.5" />
+            )}
+            <span>{isEditing ? 'Save Changes' : 'Edit letter'}</span>
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Read Aloud */}
           <button
             type="button"
             onClick={handleToggleReadAloud}
-            title={isReading ? 'Silence Narration' : 'Dramatic Dramatic Read Aloud'}
+            title={isReading ? 'Silence Narration' : 'Read letter aloud'}
             className={`p-2 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 ${
               isReading
                 ? 'bg-amber-100 text-amber-900 dark:bg-amber-900/60 dark:text-amber-200'
                 : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
             }`}
           >
-            {isReading ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-            <span className="hidden sm:inline">{isReading ? 'Silence' : 'Recite'}</span>
+            {isReading ? (
+              <VolumeX className="w-4 h-4" />
+            ) : (
+              <Volume2 className="w-4 h-4" />
+            )}
+            <span className="inline">{isReading ? 'Silence' : 'Recite'}</span>
           </button>
 
           {/* Copy */}
@@ -181,12 +214,14 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
             {copied ? (
               <>
                 <Check className="w-4 h-4 text-emerald-600" />
-                <span className="text-emerald-700 dark:text-emerald-400">Copied</span>
+                <span className="text-emerald-700 dark:text-emerald-400">
+                  Copied
+                </span>
               </>
             ) : (
               <>
                 <Copy className="w-4 h-4" />
-                <span className="hidden sm:inline">Copy</span>
+                <span className="inline">Copy</span>
               </>
             )}
           </button>
@@ -199,7 +234,7 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
             title="Print or export as PDF"
           >
             <Printer className="w-4 h-4" />
-            <span className="hidden sm:inline">Print / PDF</span>
+            <span className="inline">Print / PDF</span>
           </button>
 
           {/* Download */}
@@ -210,7 +245,7 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
             title="Download text file"
           >
             <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">Save .txt</span>
+            <span className="inline">Save .txt</span>
           </button>
 
           {/* Save to Dossier */}
@@ -222,10 +257,14 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
                 ? 'text-amber-800 dark:text-amber-300'
                 : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
             }`}
-            title="Store in personal Dossier"
+            title="Save letter"
           >
-            {isSaved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
-            <span className="hidden sm:inline">{isSaved ? 'Archived' : 'Archive'}</span>
+            {isSaved ? (
+              <BookmarkCheck className="w-4 h-4" />
+            ) : (
+              <Bookmark className="w-4 h-4" />
+            )}
+            <span className="inline">{isSaved ? 'Saved' : 'Save letter'}</span>
           </button>
         </div>
       </div>
@@ -242,7 +281,9 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
               <span className="text-[14px] font-serif-cormorant font-bold text-amber-950 dark:text-amber-100">
                 00¢
               </span>
-              <span className="text-[8px] font-mono text-stone-500 uppercase">PENANCE</span>
+              <span className="text-[8px] font-mono text-stone-500 uppercase">
+                PENANCE
+              </span>
             </div>
 
             {/* Return Address */}
@@ -260,8 +301,9 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
                 DELIVER WITH EXPEDIENCE TO:
               </p>
               <h3 className="text-xl sm:text-2xl font-serif-cormorant font-bold text-stone-900 dark:text-stone-100 italic">
-                {letter.salutation.replace(/^(To|Dear)\s+/i, '').replace(/,\s*$/, '') ||
-                  'The Wronged Party'}
+                {letter.salutation
+                  .replace(/^(To|Dear)\s+/i, '')
+                  .replace(/,\s*$/, '') || 'The Wronged Party'}
               </h3>
               <p className="text-xs font-mono text-stone-500 dark:text-stone-400 mt-1">
                 Sole Recipient & Supreme Arbiter of Forgiveness
@@ -282,7 +324,7 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
                   referrerPolicy="no-referrer"
                   className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover shadow-lg group-hover:scale-105 transition-transform cursor-pointer border border-amber-900/30"
                 />
-                <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] font-mono uppercase tracking-wider text-amber-950 dark:text-amber-200 whitespace-nowrap bg-amber-100/90 dark:bg-stone-900 px-2 py-0.5 rounded shadow-xs">
+                <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] font-mono uppercase tracking-wider text-amber-950 dark:text-amber-200 whitespace-normal bg-amber-100/90 dark:bg-stone-900 px-2 py-0.5 rounded shadow-xs">
                   Click to Break Seal
                 </span>
               </button>
@@ -292,7 +334,7 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
       ) : (
         /* The Parchment Sheet */
         <article
-          className="parchment-sheet bg-[#fbf9f4] dark:bg-stone-900 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-800 rounded-xl p-8 sm:p-14 shadow-lg relative transition-all"
+          className="parchment-sheet bg-[#fbf9f4] dark:bg-stone-900 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-800 rounded-xl p-3 sm:p-8 shadow-lg relative transition-all"
           style={{
             backgroundImage:
               'radial-gradient(#e7dec8 0.75px, transparent 0.75px), radial-gradient(#e7dec8 0.75px, #fbf9f4 0.75px)',
@@ -301,18 +343,21 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
           }}
         >
           {/* Deckled Edge Framing Line */}
-          <div className="border border-stone-300/80 dark:border-stone-700/80 p-6 sm:p-10 relative">
+          <div className="border border-stone-300/80 dark:border-stone-700/80 p-3 sm:p-6 relative">
             {/* Archival Case Registry Ribbon */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-8 border-b border-stone-300 dark:border-stone-700 text-xs font-mono text-stone-500 dark:text-stone-400 gap-2">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="font-bold tracking-widest text-amber-900 dark:text-amber-400">
                   MEA CULPA ARCHIVES
                 </span>
                 <span>·</span>
-                <span>DISPATCH #{Math.floor(100000 + Math.random() * 900000)}</span>
+                <span>DISPATCH #{(letter.id || 'draft').slice(-6)}</span>
               </div>
               <div className="text-stone-600 dark:text-stone-400">
-                DATE: {new Date().toLocaleDateString(undefined, { dateStyle: 'long' })}
+                DATE:{' '}
+                {new Date().toLocaleDateString(undefined, {
+                  dateStyle: 'long',
+                })}
               </div>
             </div>
 
@@ -323,7 +368,10 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
                   type="text"
                   value={editableLetter.title}
                   onChange={(e) =>
-                    setEditableLetter({ ...editableLetter, title: e.target.value })
+                    setEditableLetter({
+                      ...editableLetter,
+                      title: e.target.value,
+                    })
                   }
                   className="w-full text-center text-xl sm:text-2xl font-serif-cormorant font-bold border-b border-amber-800 bg-transparent px-2 py-1 text-stone-900 dark:text-stone-100"
                 />
@@ -347,7 +395,10 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
                   type="text"
                   value={editableLetter.salutation}
                   onChange={(e) =>
-                    setEditableLetter({ ...editableLetter, salutation: e.target.value })
+                    setEditableLetter({
+                      ...editableLetter,
+                      salutation: e.target.value,
+                    })
                   }
                   className="w-full text-lg font-serif-cormorant font-semibold border-b border-stone-400 bg-transparent py-1 text-stone-900 dark:text-stone-100"
                 />
@@ -365,7 +416,10 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
                   rows={10}
                   value={editableLetter.content}
                   onChange={(e) =>
-                    setEditableLetter({ ...editableLetter, content: e.target.value })
+                    setEditableLetter({
+                      ...editableLetter,
+                      content: e.target.value,
+                    })
                   }
                   className="w-full text-base font-serif-cormorant leading-relaxed p-3 bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100"
                 />
@@ -376,7 +430,7 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
                   .map((paragraph, idx) => (
                     <p
                       key={idx}
-                      className={`text-base sm:text-lg font-serif-cormorant leading-relaxed text-stone-800 dark:text-stone-200 text-justify ${
+                      className={`text-base sm:text-lg font-serif-cormorant leading-relaxed text-stone-800 dark:text-stone-200 text-left ${
                         idx === 0
                           ? 'first-letter:text-5xl first-letter:font-serif-cormorant first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:text-amber-900 dark:first-letter:text-amber-400'
                           : ''
@@ -397,7 +451,10 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
                       type="text"
                       value={editableLetter.valediction}
                       onChange={(e) =>
-                        setEditableLetter({ ...editableLetter, valediction: e.target.value })
+                        setEditableLetter({
+                          ...editableLetter,
+                          valediction: e.target.value,
+                        })
                       }
                       className="text-base font-serif-cormorant italic border-b border-stone-400 bg-transparent py-1 text-stone-900 dark:text-stone-100 block"
                     />
@@ -405,7 +462,10 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
                       type="text"
                       value={editableLetter.signOff}
                       onChange={(e) =>
-                        setEditableLetter({ ...editableLetter, signOff: e.target.value })
+                        setEditableLetter({
+                          ...editableLetter,
+                          signOff: e.target.value,
+                        })
                       }
                       className="text-lg font-serif-cormorant font-bold border-b border-stone-400 bg-transparent py-1 text-stone-900 dark:text-stone-100 block mt-2"
                     />
@@ -444,7 +504,10 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
                     rows={2}
                     value={editableLetter.postScript}
                     onChange={(e) =>
-                      setEditableLetter({ ...editableLetter, postScript: e.target.value })
+                      setEditableLetter({
+                        ...editableLetter,
+                        postScript: e.target.value,
+                      })
                     }
                     className="w-full text-sm font-serif-cormorant italic p-2 bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded text-stone-900 dark:text-stone-100"
                   />
@@ -462,10 +525,10 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
       {/* Interactive Live Refinement Toolbar (No Print) */}
       <div className="no-print mt-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-5 shadow-xs">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Wand2 className="w-4 h-4 text-amber-800 dark:text-amber-400" />
             <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-800 dark:text-stone-200">
-              Epistolary Tuner & AI Refiner
+              Refine letter
             </h3>
           </div>
           {isRefining && (
@@ -484,7 +547,7 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
               type="button"
               disabled={isRefining}
               onClick={() => onRefine(suggestion)}
-              className="text-xs px-2.5 py-1.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-amber-100 hover:text-amber-900 dark:hover:bg-amber-900/40 dark:hover:text-amber-200 transition-colors disabled:opacity-50 whitespace-nowrap"
+              className="text-xs px-2.5 py-1.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-amber-100 hover:text-amber-900 dark:hover:bg-amber-900/40 dark:hover:text-amber-200 transition-colors disabled:opacity-50 whitespace-normal"
             >
               {suggestion}
             </button>

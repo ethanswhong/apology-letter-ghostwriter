@@ -43,11 +43,31 @@ const RELATIONSHIPS = [
 ];
 
 const DRAMA_DESCRIPTIONS = [
-  { level: 1, label: 'Gentle Chuckle', desc: 'Lighthearted poke, subtle self-ribbing, harmless blush.' },
-  { level: 2, label: 'Social Embarrassment', desc: 'Awkward eye contact, sweaty palms, honest sheepish grin.' },
-  { level: 3, label: 'Standard Grovel', desc: 'On bended knee, offering pastries, theatrical contrition.' },
-  { level: 4, label: 'Operatic Penance', desc: 'Gothic sorrow, dramatic pauses, deep sighing by candlelight.' },
-  { level: 5, label: 'DEFCON 1 Cosmic Calamity', desc: 'World-ending guilt, abject historical tragedy, total surrender.' },
+  {
+    level: 1,
+    label: 'Gentle Chuckle',
+    desc: 'Lighthearted poke, subtle self-ribbing, harmless blush.',
+  },
+  {
+    level: 2,
+    label: 'Social Embarrassment',
+    desc: 'Awkward eye contact, sweaty palms, honest sheepish grin.',
+  },
+  {
+    level: 3,
+    label: 'Standard Grovel',
+    desc: 'On bended knee, offering pastries, theatrical contrition.',
+  },
+  {
+    level: 4,
+    label: 'Operatic Penance',
+    desc: 'Gothic sorrow, dramatic pauses, deep sighing by candlelight.',
+  },
+  {
+    level: 5,
+    label: 'DEFCON 1 Cosmic Calamity',
+    desc: 'World-ending guilt, abject historical tragedy, total surrender.',
+  },
 ];
 
 export const ApologyForm: React.FC<ApologyFormProps> = ({
@@ -56,19 +76,19 @@ export const ApologyForm: React.FC<ApologyFormProps> = ({
   onOpenExcuseLab,
   externalExcuse = '',
 }) => {
-  const [recipient, setRecipient] = useState('Clara, Beloved Roommate');
-  const [sender, setSender] = useState('Julian');
+  const [recipient, setRecipient] = useState('');
+  const [sender, setSender] = useState('');
   const [relationship, setRelationship] = useState('Roommate / Flatmate');
-  const [transgression, setTransgression] = useState(
-    'Ate the clearly labeled green curry leftovers in the fridge at 2:14 AM'
-  );
-  const [tone, setTone] = useState<ApologyTone>('victorian');
+  const [transgression, setTransgression] = useState('');
+  const [tone, setTone] = useState<ApologyTone>('warm_humorous');
   const [dramaLevel, setDramaLevel] = useState(3);
   const [customExcuse, setCustomExcuse] = useState(externalExcuse);
   const [reparation, setReparation] = useState('');
   const [generatingOfferings, setGeneratingOfferings] = useState(false);
   const [offeringsError, setOfferingsError] = useState<string | null>(null);
-  const [offeringSuggestions, setOfferingSuggestions] = useState<PeaceOfferingItem[]>([]);
+  const [offeringSuggestions, setOfferingSuggestions] = useState<
+    PeaceOfferingItem[]
+  >([]);
 
   // Update excuse if external lab passed one
   React.useEffect(() => {
@@ -93,7 +113,8 @@ export const ApologyForm: React.FC<ApologyFormProps> = ({
   };
 
   const handleRandomizeTransgression = () => {
-    const random = QUICK_FAUX_PAS[Math.floor(Math.random() * QUICK_FAUX_PAS.length)];
+    const random =
+      QUICK_FAUX_PAS[Math.floor(Math.random() * QUICK_FAUX_PAS.length)];
     setTransgression(random);
   };
 
@@ -107,13 +128,20 @@ export const ApologyForm: React.FC<ApologyFormProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ transgression, relationship }),
       });
-      const data = await readApiResponse<{ success: boolean; offerings?: PeaceOfferingItem[] }>(res);
+      const data = await readApiResponse<{
+        success: boolean;
+        offerings?: PeaceOfferingItem[];
+      }>(res);
       if (data.success && data.offerings) {
         setOfferingSuggestions(data.offerings);
       }
     } catch (err) {
       console.error(err);
-      setOfferingsError(err instanceof Error ? err.message : 'Unable to suggest peace offerings.');
+      setOfferingsError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to suggest peace offerings.',
+      );
     } finally {
       setGeneratingOfferings(false);
     }
@@ -131,7 +159,9 @@ export const ApologyForm: React.FC<ApologyFormProps> = ({
           <span className="text-xs uppercase font-mono tracking-widest text-stone-600 dark:text-stone-400">
             Case Parameters
           </span>
-          <span className="text-xs text-stone-600 dark:text-stone-400">All fields customizable</span>
+          <span className="text-xs text-stone-600 dark:text-stone-400">
+            All fields customizable
+          </span>
         </div>
         <h2 className="text-2xl font-serif-cormorant font-bold text-stone-900 dark:text-stone-100">
           The Dossier of Grievance
@@ -287,7 +317,9 @@ export const ApologyForm: React.FC<ApologyFormProps> = ({
         />
         <div className="flex justify-between text-[11px] text-stone-600 dark:text-stone-400 mt-1">
           <span>Mild chuckle</span>
-          <span className="text-stone-600 dark:text-stone-400">{currentDrama.desc}</span>
+          <span className="text-stone-600 dark:text-stone-400">
+            {currentDrama.desc}
+          </span>
           <span>Cosmic grief</span>
         </div>
       </div>
@@ -345,7 +377,10 @@ export const ApologyForm: React.FC<ApologyFormProps> = ({
           />
 
           {offeringsError && (
-            <p role="alert" className="mt-2 text-sm text-rose-800 dark:text-rose-300">
+            <p
+              role="alert"
+              className="mt-2 text-sm text-rose-800 dark:text-rose-300"
+            >
               {offeringsError}
             </p>
           )}
@@ -361,7 +396,9 @@ export const ApologyForm: React.FC<ApologyFormProps> = ({
                   <button
                     key={idx}
                     type="button"
-                    onClick={() => setReparation(`${item.offering}: ${item.terms}`)}
+                    onClick={() =>
+                      setReparation(`${item.offering}: ${item.terms}`)
+                    }
                     className="text-left text-xs p-2 rounded bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 hover:border-amber-600 transition-colors"
                   >
                     <span className="font-semibold text-stone-900 dark:text-stone-100">

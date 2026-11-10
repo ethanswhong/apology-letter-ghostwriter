@@ -7,19 +7,22 @@ interface PresetsGalleryProps {
   onLoadPreset: (preset: ApologyPreset) => void;
 }
 
-export const PresetsGallery: React.FC<PresetsGalleryProps> = ({ onLoadPreset }) => {
+export const PresetsGallery: React.FC<PresetsGalleryProps> = ({
+  onLoadPreset,
+}) => {
   return (
     <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6">
       <div className="text-center max-w-2xl mx-auto mb-10">
         <div className="text-xs tracking-widest uppercase font-mono text-stone-600 dark:text-stone-400 mb-2">
-          Archival Hall of Infamy
+          Archival Letter examples
         </div>
         <h2 className="text-3xl sm:text-4xl font-serif-cormorant font-bold text-stone-900 dark:text-stone-100">
           Celebrated Transgressions & Epistles
         </h2>
         <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
-          Explore exemplary apologies from history and modernity. Load any masterpiece into the
-          composer to customize names, details, or dramatic dials.
+          Explore exemplary apologies from history and modernity. Load any
+          masterpiece into the composer to customize names, details, or dramatic
+          dials.
         </p>
       </div>
 
@@ -31,7 +34,9 @@ export const PresetsGallery: React.FC<PresetsGalleryProps> = ({ onLoadPreset }) 
           >
             <div>
               <div className="flex items-center justify-between text-xs font-mono text-stone-600 dark:text-stone-400 mb-2">
-                <span className="uppercase tracking-wider">{preset.relationship}</span>
+                <span className="uppercase tracking-wider">
+                  {preset.relationship}
+                </span>
                 <span>· Contrition Level {preset.dramaLevel}/5</span>
               </div>
 
