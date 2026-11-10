@@ -17,6 +17,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { ApologyLetter } from '../types';
+import waxSealImage from '../assets/images/wax_seal_insignia_1793744474248.jpg';
 
 interface LetterParchmentProps {
   letter: ApologyLetter;
@@ -276,7 +277,7 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
                 title="Break seal and open letter"
               >
                 <img
-                  src="/src/assets/images/wax_seal_insignia_1793744474248.jpg"
+                  src={waxSealImage}
                   alt="Crimson Wax Seal"
                   referrerPolicy="no-referrer"
                   className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover shadow-lg group-hover:scale-105 transition-transform cursor-pointer border border-amber-900/30"
@@ -424,7 +425,7 @@ export const LetterParchment: React.FC<LetterParchmentProps> = ({
               {/* Physical Wax Seal Image at bottom right */}
               <div className="flex flex-col items-center shrink-0">
                 <img
-                  src="/src/assets/images/wax_seal_insignia_1793744474248.jpg"
+                  src={waxSealImage}
                   alt="Authentic Wax Seal"
                   referrerPolicy="no-referrer"
                   className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover shadow-md border border-amber-950/20"
